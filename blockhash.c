@@ -130,15 +130,17 @@ void blockhash_quick(int bits, unsigned char *data, int width, int height, int *
 
     for (y = 0; y < bits; y++) {
         for (x = 0; x < bits; x++) {
+            value = 0;
+
             for (iy = 0; iy < block_height; iy++) {
                 for (ix = 0; ix < block_width; ix++) {
                     ii = ((y * block_height + iy) * width + (x * block_width + ix)) * 4;
 
                     alpha = data[ii+3];
                     if (alpha == 0) {
-                        value = 765;
+                        value += 765;
                     } else {
-                        value = data[ii] + data[ii+1] + data[ii+2];
+                        value += data[ii] + data[ii+1] + data[ii+2];
                     }
                 }
             }
