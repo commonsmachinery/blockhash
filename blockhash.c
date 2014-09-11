@@ -279,6 +279,9 @@ int process_image(char * fn, int bits, int quick, int debug)
         exit(-1);
     }
 
+    // Remove color profiles for interoperability with other hashing tools
+    MagickProfileImage(magick_wand, "*", NULL, 0);
+
     width = MagickGetImageWidth(magick_wand);
     height = MagickGetImageHeight(magick_wand);
 
