@@ -40,7 +40,18 @@
 
 <p>The 256 bit hashes that Blockhash generate are designed to be near unique for images, even after an image has been rescaled. The Hamming distance between two hashes (the number of bits that differ) indicate how far apart two images are, with single-digit values generally giving a good indication that the images are identical, even if they are of different size.</p>
           <h3>Why Blockhash?</h3>
-<p>While working on developing the <a href="http://elog.io">Elog.io</a> tools, we needed a way to perceptually compare images. Libraries like <a href="http://phash.org/">pHash</a> does the job, but we needed something that had an easier algorithm that could be implemented in JavaScript, and the block mean value based image hash algorithm fit the bill perfectly. We have subsequently made a few tweaks to the algorithm to optimize it for speed and make it less susceptible to implementation variations.</p>
+<p>While working on developing the <a href="http://elog.io">Elog.io</a> tools, we needed a way to perceptually compare images. Libraries like <a href="http://phash.org/">pHash</a> and <a href="http://www.imgseek.net">imgSeek</a> does the job, but we needed something that had an easier algorithm that could be implemented in JavaScript, and the block mean value based image hash algorithm fit the bill perfectly. We have subsequently made a few tweaks to the algorithm to optimize it for speed and make it less susceptible to implementation variations.</p>
+
+<h3>Use case parameters</h3>
+<p>
+We've designed Blockhash for use cases with the following in mind:
+</p>
+<ul>
+ <li>Identifying <em>derivative</em> works is less important than verbatim re-use (ie., the algorithm doesn't need to match images which have been manipulated beyond resizing and format changes)</li>
+ <li>False positives (images that are not the same generate blockhashes that have less than 10 variations) should be kept at an absolute minimum and occur no more than on 1 out of 10,000 images in a random test set.</li>
+ <li>In-browser execution with JavaScript should be possible.</li>
+ <li>Blockhash variations between images of original size (above 640 pixels wide) down to thumbnail size (100 pixels wide) should be no more than 10 bits in 95% of cases.</li>
+</ul>
 
 <h3>Getting started</h3>
 <p>
