@@ -126,8 +126,7 @@ void blockhash_quick(int bits, unsigned char *data, int width, int height, int *
     block_width = width / bits;
     block_height = height / bits;
 
-    blocks = malloc(bits * bits * sizeof(int));
-
+    blocks = calloc(bits * bits, sizeof(int));
     for (y = 0; y < bits; y++) {
         for (x = 0; x < bits; x++) {
             value = 0;
@@ -149,19 +148,19 @@ void blockhash_quick(int bits, unsigned char *data, int width, int height, int *
         }
     }
 
-    for (i = 0; i < 4; i++)
-      m[i] = median(blocks + i*(bits*bits/4), bits*bits/4);
-
-    int j;
+    for (i = 0; i < 4; i++) {
+       m[i] = median(&blocks[i*bits*bits/4], bits*bits/4);
+    }
 
     for (i = 0; i < bits * bits; i++) {
-        if ( (i < bits*bits/4 && blocks[i] < m[0]) 
-           ||(i < bits*bits/2 && blocks[i] < m[1])
-           ||(i < (bits*bits/2+bits*bits/4) && blocks[i] < m[2])
-           ||(blocks[i] < m[3])) {
-            blocks[i] = 0;
+        if (  ((blocks[i] < m[0]) && (i < bits*bits/4))
+            ||((blocks[i] < m[1]) && (i >= bits*bits/4) && (i < bits*bits/2))
+            ||((blocks[i] < m[2]) && (i >= bits*bits/2) && (i < bits*bits/4+bits*bits/2))
+            ||((blocks[i] < m[3]) && (i >= bits*bits/2+bits*bits/4))
+            ) {
+          blocks[i] = 0;
         } else {
-            blocks[i] = 1;
+          blocks[i] = 1;
         }
     }
 
@@ -255,16 +254,17 @@ void blockhash(int bits, unsigned char *data, int width, int height, int **hash)
     }
 
     for (i = 0; i < 4; i++) 
-       m[i] = medianf(blocks + i*(bits*bits/4), bits*bits/4);
+       m[i] = medianf(&blocks[i*bits*bits/4], bits*bits/4);
 
     for (i = 0; i < bits * bits; i++) {
-        if ( (i < bits*bits/4 && blocks[i] < m[0]) 
-           ||(i < bits*bits/2 && blocks[i] < m[1])
-           ||(i < (bits*bits/2+bits*bits/4) && blocks[i] < m[2])
-           ||(blocks[i] < m[3])) {
-            result[i] = 0;
+        if (  ((blocks[i] < m[0]) && (i < bits*bits/4))
+            ||((blocks[i] < m[1]) && (i >= bits*bits/4) && (i < bits*bits/2))
+            ||((blocks[i] < m[2]) && (i >= bits*bits/2) && (i < bits*bits/4+bits*bits/2))
+            ||((blocks[i] < m[3]) && (i >= bits*bits/2+bits*bits/4))
+            ) {
+          result[i] = 0;
         } else {
-            result[i] = 1;
+          result[i] = 1;
         }
     }
 
