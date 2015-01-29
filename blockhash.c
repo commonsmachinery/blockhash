@@ -116,17 +116,20 @@ char* bits_to_hexhash(int *bits, int nbits)
 */
 void blockhash_quick(int bits, unsigned char *data, int width, int height, int **hash)
 {
-    int    i, x, y, ix, iy;
+    int    i, j, x, y, ix, iy;
     int    ii, alpha, value;
     int    block_width;
     int    block_height;
     int   *blocks;
-    float  m[4];
+    float *m;
+    float  window[9];
 
     block_width = width / bits;
     block_height = height / bits;
 
     blocks = calloc(bits * bits, sizeof(int));
+    m = calloc(bits * bits, sizeof(float));
+
     for (y = 0; y < bits; y++) {
         for (x = 0; x < bits; x++) {
             value = 0;
@@ -148,16 +151,31 @@ void blockhash_quick(int bits, unsigned char *data, int width, int height, int *
         }
     }
 
-    for (i = 0; i < 4; i++) {
-       m[i] = median(&blocks[i*bits*bits/4], bits*bits/4);
+    j = 0;
+    for (y = 0; y < bits; y++) {
+        for (x = 0; x < bits; x++) {
+            memset(window, 0, sizeof(window));
+            i = 0;
+
+            for (iy = y-1; iy <= y+1; iy++) {
+                for (ix = x-1; ix <= x+1; ix++) {
+                    if ((iy >= 0) && 
+                        (ix >= 0) &&
+                        (iy < bits) &&
+                        (ix < bits)) {
+                        window[i] = blocks[iy*bits + ix];
+                        i++;
+                    }
+                }
+            }
+
+            m[j] = medianf(window, i);
+            j++;
+        }
     }
 
     for (i = 0; i < bits * bits; i++) {
-        if (  ((blocks[i] < m[0]) && (i < bits*bits/4))
-            ||((blocks[i] < m[1]) && (i >= bits*bits/4) && (i < bits*bits/2))
-            ||((blocks[i] < m[2]) && (i >= bits*bits/2) && (i < bits*bits/4+bits*bits/2))
-            ||((blocks[i] < m[3]) && (i >= bits*bits/2+bits*bits/4))
-            ) {
+        if (blocks[i] < m[i]) {
           blocks[i] = 0;
         } else {
           blocks[i] = 1;
@@ -165,6 +183,7 @@ void blockhash_quick(int bits, unsigned char *data, int width, int height, int *
     }
 
     *hash = blocks;
+    free(m);
 }
 
 /** Calculate perceptual hash for an RGBA image using precise method.
@@ -190,11 +209,12 @@ void blockhash(int bits, unsigned char *data, int width, int height, int **hash)
     float   x_mod, y_mod;
     float   weight_top, weight_bottom, weight_left, weight_right;
     int     block_top, block_bottom, block_left, block_right;
-    int     i, x, y, ii, alpha;
+    int     i, j, x, y, ix, iy, ii, alpha;
     float   value;
     float  *blocks;
     int    *result;
-    float   m[4];
+    float  *m;
+    float   window[9];
 
     if (width % bits == 0 && height % bits == 0) {
         return blockhash_quick(bits, data, width, height, hash);
@@ -205,6 +225,7 @@ void blockhash(int bits, unsigned char *data, int width, int height, int **hash)
 
     blocks = calloc(bits * bits, sizeof(float));
     result = malloc(bits * bits * sizeof(int));
+    m = calloc(bits * bits, sizeof(float));
 
     for (y = 0; y < height; y++) {
         y_mod = fmodf(y + 1, block_height);
@@ -253,15 +274,31 @@ void blockhash(int bits, unsigned char *data, int width, int height, int **hash)
         }
     }
 
-    for (i = 0; i < 4; i++) 
-       m[i] = medianf(&blocks[i*bits*bits/4], bits*bits/4);
+    j = 0;
+    for (y = 0; y < bits; y++) {
+        for (x = 0; x < bits; x++) {
+            memset(window, 0, sizeof(window));
+            i = 0;
+
+            for (iy = y-1; iy <= y+1; iy++) {
+                for (ix = x-1; ix <= x+1; ix++) {
+                    if ((iy >= 0) &&
+                        (ix >= 0) &&
+                        (iy < bits) &&
+                        (ix < bits)) {
+                        window[i] = blocks[iy*bits + ix];
+                        i++;
+                    }
+                }
+            }
+
+            m[j] = medianf(window, i);
+            j++;
+        }
+    }
 
     for (i = 0; i < bits * bits; i++) {
-        if (  ((blocks[i] < m[0]) && (i < bits*bits/4))
-            ||((blocks[i] < m[1]) && (i >= bits*bits/4) && (i < bits*bits/2))
-            ||((blocks[i] < m[2]) && (i >= bits*bits/2) && (i < bits*bits/4+bits*bits/2))
-            ||((blocks[i] < m[3]) && (i >= bits*bits/2+bits*bits/4))
-            ) {
+        if (blocks[i] < m[i]) {
           result[i] = 0;
         } else {
           result[i] = 1;
@@ -270,6 +307,7 @@ void blockhash(int bits, unsigned char *data, int width, int height, int **hash)
 
     *hash = result;
     free(blocks);
+    free(m);
 }
 
 int process_image(char * fn, int bits, int quick, int debug)
