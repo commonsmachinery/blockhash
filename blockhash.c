@@ -401,4 +401,6 @@ void main (int argc, char **argv) {
     }
 
     MagickWandTerminus();
+    
+    exit(0);
 }
