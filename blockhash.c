@@ -322,7 +322,7 @@ int process_image(char * fn, int bits, int quick, int debug)
     }
 
     char* hex = bits_to_hexhash(hash, bits*bits);
-    printf("%s %s\n", fn, hex);
+    printf("%s  %s\n", hex, fn);
 
     free(hex);
     free(hash);
