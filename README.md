@@ -12,6 +12,10 @@ the following command:
 
     sudo apt-get install libmagickwand-dev
 
+On Fedora and friends:
+
+    sudo dnf install ImageMagick-devel
+
 To build blockhash cd to the source directory and type:
 
     ./waf configure
