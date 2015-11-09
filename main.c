@@ -21,12 +21,13 @@
 #define DEFAULT_BITS 16
 
 
-typedef struct _hash_computing_task {
-	const char* file_name;
-	int bits;
-	int quick;
-	int debug;
-} hash_computing_task;
+typedef struct _hash_computation_task {
+    const char* file_name;
+    int bits;
+    int quick;
+    int debug;
+    int video;
+} hash_computation_task;
 
 
 static void debug_print_hash(const int* hash, int bits) 
@@ -125,7 +126,7 @@ static int compute_image_hash(MagickWand* magick_wand, int bits, int quick, int*
 }
 
 
-static int* process_video_frame(const hash_computing_task* task, size_t frame_number, CvMat* frame_data)
+static int* process_video_frame(const hash_computation_task* task, size_t frame_number, CvMat* frame_data)
 {
     int result = 0;
     int *hash;
@@ -175,7 +176,7 @@ static int* process_video_frame(const hash_computing_task* task, size_t frame_nu
 }
 
 
-static int process_image_file(const hash_computing_task* task)
+static int process_image_file(const hash_computation_task* task)
 {
     int result = 0;
     int *hash;
@@ -245,7 +246,7 @@ typedef struct _video_frame_info {
 
 #define HASH_PART_COUNT 4 
 
-static int process_video_file(const hash_computing_task* task)
+static int process_video_file(const hash_computation_task* task)
 {
     size_t i;
     int result = 0;
@@ -380,6 +381,13 @@ cleanup:
 }
 
 
+static int process_task(const hash_computation_task* task) {
+    int result = task->video 
+        ? process_video_file(task)
+        : process_image_file(task);
+    return result;
+}
+
 static void show_help(char* program_name) 
 {    
     printf("Usage: %s [-h|--help] [-v|--version] [--quick] [--video] [--bits BITS] [--debug] filenames...\n"
@@ -421,8 +429,7 @@ int main (int argc, char **argv)
     int n_succeeded = 0;
     int custom_bits_defined = 0;
     int option_index = 0;
-    int video = 0;
-    hash_computing_task task;
+    hash_computation_task task;
 
     struct option long_options[] = {
         {"help",    no_argument,        0, 'h'},
@@ -457,7 +464,7 @@ int main (int argc, char **argv)
 	      break;
 
 	  case 'V':
-	      video = 1;
+	      task.video = 1;
 	      break;
 	  
 	  case 'b':
@@ -487,7 +494,7 @@ int main (int argc, char **argv)
       if(!custom_bits_defined)
 	task.bits = DEFAULT_BITS;
       
-      if(video)
+      if(task.video)
           task.bits = task.bits / 2;
       
       MagickWandGenesis();
@@ -495,9 +502,7 @@ int main (int argc, char **argv)
       while (optind < argc) {
 	task.file_name = argv[optind];
 	
-	int result = video 
-	  ? process_video_file(&task)
-	  : process_image_file(&task);
+        int result = process_task(&task);
 	 
 	if(result)
 	  ++n_failed;
