@@ -15,7 +15,11 @@
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
 #include "blockhash.h"
-#include "parameters.h"
+#include "version.h"
+
+
+#define DEFAULT_BITS 16
+
 
 typedef struct _hash_computing_task {
 	const char* file_name;
@@ -204,6 +208,7 @@ static int process_image_file(const hash_computing_task* task)
 			task->file_name);
 	    }
 	    
+	    // Free hash buffer
 	    free(hash);
 	    break;
 	}
@@ -238,12 +243,15 @@ typedef struct _video_frame_info {
     int* hash;
 } video_frame_info;
 
+#define HASH_PART_COUNT 4 
+
 static int process_video_file(const hash_computing_task* task)
 {
+    size_t i;
     int result = 0;
     CvCapture* capture;
     size_t frame_count;
-    video_frame_info hash_frames[4];
+    video_frame_info hash_frames[HASH_PART_COUNT];
     size_t next_hash_frame;
     size_t current_frame;
     int* hash = NULL;
@@ -260,10 +268,9 @@ static int process_video_file(const hash_computing_task* task)
     
     // Get frame count
     frame_count = (size_t)cvGetCaptureProperty(capture, CV_CAP_PROP_FRAME_COUNT);
-    if(task->debug)
-	printf("Video file '%s' has %llu frames.\n", 
-	       task->file_name, (unsigned long long)frame_count);
-    
+    if(task->debug) {
+	printf("Video file '%s' has %llu frames.\n", task->file_name, (unsigned long long)frame_count);
+    }
     // Determine first and last hash frames
     if(frame_count < 11) {
 	if(frame_count > 0) {
@@ -277,7 +284,7 @@ static int process_video_file(const hash_computing_task* task)
 		result = -1;
 		fprintf(stderr, "Error computing blockhash for the zero-frame video file '%s'.", 
 			task->file_name);
-		goto cleanup_release_capture;
+		goto cleanup;
 	    }
 	    memset(hash, 0, hash_size);
 	    goto hash_computed;
@@ -301,11 +308,10 @@ static int process_video_file(const hash_computing_task* task)
 		    (unsigned long long)current_frame,
 		    (unsigned long long)frame_count,
 		    task->file_name);
-	    goto cleanup_release_capture;
+	    goto cleanup;
 	} else {
 	    CvMat* mat = NULL;
-	    size_t i;
-	    for(i = next_hash_frame; i < 4; ++i) {
+	    for(i = next_hash_frame; i < HASH_PART_COUNT; ++i) {
 		if(hash_frames[i].frame_number == current_frame) {
 		    if(!mat) {
 			mat = cvEncodeImage(".bmp", frame_image, NULL);
@@ -314,7 +320,7 @@ static int process_video_file(const hash_computing_task* task)
 			    fprintf(stderr, "Error converting to image frame #%llu of the video file '%s'.", 
 				    (unsigned long long)current_frame,
 				    task->file_name);
-			    goto cleanup_release_capture;
+			    goto cleanup;
 			}
 		    }
 		    hash_frames[i].hash = process_video_frame(task, current_frame, mat);
@@ -326,13 +332,25 @@ static int process_video_file(const hash_computing_task* task)
 	}
     }
     
+    hash = malloc(task->bits * task->bits * sizeof(int) * HASH_PART_COUNT);
+    if(!hash) {
+        fprintf(stderr, "Error creating hash for video file '%s'.\n", task->file_name);
+        goto cleanup;
+    } else {
+        size_t block_element_count = task->bits * task->bits;
+        size_t block_size = block_element_count * sizeof(int);
+        int* dest = hash;
+        for(i = 0; i < HASH_PART_COUNT; ++i, dest += block_element_count)
+            memcpy(dest, hash_frames[i].hash, block_size); 
+    }
+    
 hash_computed:
     // Show debug output
     if (task->debug)
 	debug_print_hash(hash, task->bits);
 
     // Print blockhash string
-    char* hex = blockhash_bits_to_hex_str(hash, task->bits * task->bits);
+    char* hex = blockhash_bits_to_hex_str(hash, HASH_PART_COUNT * task->bits * task->bits);
     if(hex) {
       result = 0;
       printf("%s  %s\n", hex, task->file_name);
@@ -344,20 +362,21 @@ hash_computed:
     }
 
     
-    // Clenup temporary data 
+    // Free hash buffer
     free(hash);
     
-    // close video file
-cleanup_release_capture:
+cleanup:
+    // Free partial hash buffers
+    for(i = 0; i < HASH_PART_COUNT; ++i) {
+        int* h = hash_frames[i].hash; 
+        if(h) free(h);
+    }
+    
+    // Close video file
     cvReleaseCapture(&capture);
     
     // report the result
     return result;
-}
-
-
-static inline int hash_size_in_true_bits(int bits, int scale) {
-    return bits*bits*scale;
 }
 
 
@@ -370,19 +389,14 @@ static void show_help(char* program_name)
            "-v, --version         Show program version information and exit\n"
            "-q, --quick           Use quick hashing method.\n"
            "-V, --video           Expect video files instead of image files\n"
-           "-b, --bits BITS       Specify hash size:\n"
-	   "                             (N^2)*32 bits for images\n"
-	   "                             (N^2)*128 bits for videos.\n"
-	   "                      Defaults: %d for images (gives %d-bit hash),\n"
-	   "                                %d for videos (gives %d-bit hash)\n"
+           "-b, --bits BITS       Specify hash size (N^2) bits.\n"
+           "                      Default is %d which gives %d-bit hash.\n"
            "--debug               Print debugging information.\n"
 	   "                      This includes printing hashes as 2D arrays.\n"
 	   ,
 	   program_name,
-	   DEFAULT_BITS_FOR_IMAGES,
-	   hash_size_in_true_bits(DEFAULT_BITS_FOR_IMAGES, 32),
-	   DEFAULT_BITS_FOR_VIDEOS,
-	   hash_size_in_true_bits(DEFAULT_BITS_FOR_VIDEOS, 128)
+	   DEFAULT_BITS,
+           DEFAULT_BITS * DEFAULT_BITS
     );
 }
 
@@ -470,11 +484,11 @@ int main (int argc, char **argv)
 
     if(optind < argc) {
       
-      if(!custom_bits_defined) {
-	task.bits = video 
-	  ? DEFAULT_BITS_FOR_VIDEOS
-	  : DEFAULT_BITS_FOR_IMAGES;
-      }
+      if(!custom_bits_defined)
+	task.bits = DEFAULT_BITS;
+      
+      if(video)
+          task.bits = task.bits / 2;
       
       MagickWandGenesis();
       

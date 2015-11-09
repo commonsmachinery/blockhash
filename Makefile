@@ -9,8 +9,8 @@
 CC=gcc
 LD=gcc
 
-ifeq ($(DEBUG),1)
-CFLAGS:=-g3 -Og 
+ifeq ("$(DEBUG)","1")
+CFLAGS:=-g3 -ggdb
 else
 CFLAGS:=-O3
 endif
