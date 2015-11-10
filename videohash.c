@@ -132,7 +132,7 @@ int process_video(char *filename, int bits, int quick, int debug)
     size_t next_hash_frame;
     size_t current_frame;
     int* hash = NULL;
-    
+ 
     // Initialize data
     memset(&hash_frames[0], 0, sizeof(hash_frames));
     
@@ -170,13 +170,18 @@ int process_video(char *filename, int bits, int quick, int debug)
     for(current_frame = 0; current_frame < frame_count; ++current_frame) {
         IplImage* frame_image = cvQueryFrame(capture);
         if(!frame_image) {
-            result = -1;
-            fprintf(stderr, "Error capturing frame #%llu of %llu from the video file '%s'.", 
-        	    (unsigned long long)current_frame,
-        	    (unsigned long long)frame_count,
-        	    filename);
-            goto cleanup;
-        } else {
+            // Signal an error only if we don't manage to get the last frame
+            if (current_frame <= hash_frames[3].frame_number) {
+                result = -1;
+                fprintf(stderr, "Error capturing frame #%llu of %llu from the video file '%s'.", 
+        	        (unsigned long long)current_frame,
+        	        (unsigned long long)frame_count,
+        	        filename);
+                goto cleanup;
+            } else {
+                goto hash_complete;
+            }
+        } else if (frame_image) {
             CvMat* mat = NULL;
             for(i = next_hash_frame; i < HASH_PART_COUNT; ++i) {
         	if(hash_frames[i].frame_number == current_frame) {
@@ -199,6 +204,7 @@ int process_video(char *filename, int bits, int quick, int debug)
         }
     }
     
+hash_complete:
     hash = malloc(bits * bits * sizeof(int) * HASH_PART_COUNT);
     if(!hash) {
         fprintf(stderr, "Error creating hash for video file '%s'.\n", filename);
