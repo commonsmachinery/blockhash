@@ -29,9 +29,15 @@ Usage
 
 Run `blockhash [list of images]` for calculating hashes for image files.
 
-Run `blockhash --video [list of vedeos]` for calculating hashes for video files.
+Run `blockhash --video [list of videos]` for calculating hashes for video files.
 
 Run `blockhash --help` for the list of options.
+
+WARNING
+-------
+
+Please note that the status of the video algorithm is EXPERIMENTAL. It is
+subject to substantial changes and should not be relied upon.
 
 License
 -------
