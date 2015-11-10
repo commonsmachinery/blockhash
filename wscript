@@ -17,9 +17,15 @@ def configure(conf):
 def build(bld):
     bld.stlib(source='blockhash.c', target='stblockhash')
 
-    bld.program(source='main.c',
+    bld.program(source='imagehash.c',
                 features='c cprogram',
                 target='blockhash',
-                use=['MAGICKWAND', 'M', 'OPENCV', 'stblockhash'],
+                use=['MAGICKWAND', 'M', 'stblockhash'],
+                cflags=['-O3'],
+               )
+    bld.program(source='videohash.c',
+                features='c cprogram',
+                target='blockhash_video',
+                use=['MAGICKWAND', 'M', 'stblockhash', 'OPENCV'],
                 cflags=['-O3'],
                )
