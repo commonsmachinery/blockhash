@@ -2,11 +2,5 @@
 .waf-*
 .lock-*
 
-# C/C++ binaries
-*.o
-*.a
-blockhash
-
-
 # build directory
 build

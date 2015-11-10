@@ -15,6 +15,6 @@ d=`dirname "$0"`
 ../../build/blockhash_video -q -b 16 *.mpeg *.ogv | sort | diff -su quick-hashes.txt -
 )
 echo
-echo Test finished.
+echo OK
 echo
 

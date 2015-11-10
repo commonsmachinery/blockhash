@@ -18,18 +18,19 @@ On Fedora and friends:
 
 To build blockhash cd to the source directory and type:
 
-    make rebuild
+    ./waf configure
+    ./waf
 
 The program binary will land in `./build`. To install it to `/usr/local/bin/` type:
 
-    make install
+    ./waf install
 
 Usage
 -----
 
 Run `blockhash [list of images]` for calculating hashes for image files.
 
-Run `blockhash --video [list of videos]` for calculating hashes for video files.
+Run `blockhash_video [list of videos]` for calculating hashes for video files.
 
 Run `blockhash --help` for the list of options.
 
