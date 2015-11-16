@@ -116,7 +116,7 @@ int *process_video_frame(char *filename, int bits, int quick, size_t frame_numbe
 }
 
 typedef struct _video_frame_info {
-    size_t frame_number;
+    size_t pos;
     int* hash;
 } video_frame_info;
 
@@ -143,48 +143,40 @@ int process_video(char *filename, int bits, int quick, int debug)
         return -1;
     }
     
-    // Get frame count
-    frame_count = (size_t)cvGetCaptureProperty(capture, CV_CAP_PROP_FRAME_COUNT);
-    // Determine first and last hash frames
-    if(frame_count < 11) {
-        if(frame_count > 0) {
-            hash_frames[0].frame_number = 0;
-            hash_frames[3].frame_number = frame_count - 1;	  
-        } else {
-            // Handle special zero frames case
-            result = -1;
-            fprintf(stderr, "Error computing blockhash for zero-frame video file");
-            goto cleanup;
-        }
-    } else {
-        hash_frames[0].frame_number = 10;
-        hash_frames[3].frame_number = frame_count - 11;
-    }
-    
+    /*
+     * Unfortunate, CV_CAP_PROP_FRAME_COUNT isn't reliable since it
+     * doesn't consider duplicate frames (dropped when reading) and
+     * makes assumptions that may not hold true when decoding frames.
+     *
+     */
+    cvSetCaptureProperty(capture, CV_CAP_PROP_POS_FRAMES, 0);
+    frame_count = 0;
+    while (cvQueryFrame(capture)) frame_count++;
+
     // Determine middle hash frames
-    hash_frames[1].frame_number = (size_t)floor(frame_count * 0.35);
-    hash_frames[2].frame_number = (size_t)floor(frame_count * 0.7);
-    
-    // Read frames one by one and compute hash for the selected frames
+    hash_frames[0].pos = 1;
+    hash_frames[1].pos = (size_t)floor(frame_count*0.35);
+    hash_frames[2].pos = (size_t)floor(frame_count*0.7);
+    hash_frames[3].pos = frame_count;
+
     next_hash_frame = 0;
-    for(current_frame = 0; current_frame < frame_count; ++current_frame) {
+
+    // Rewind to start of stream
+    cvSetCaptureProperty(capture, CV_CAP_PROP_POS_FRAMES, 0);
+
+    for(current_frame = 1; current_frame <= frame_count; current_frame++) {
         IplImage* frame_image = cvQueryFrame(capture);
         if(!frame_image) {
-            // Signal an error only if we don't manage to get the last frame
-            if (current_frame <= hash_frames[3].frame_number) {
-                result = -1;
-                fprintf(stderr, "Error capturing frame #%llu of %llu from the video file '%s'.", 
-        	        (unsigned long long)current_frame,
-        	        (unsigned long long)frame_count,
+            result = -1;
+            fprintf(stderr, "Error capturing frame #%llu of #%llu from the video file '%s'.", 
+              (unsigned long long)current_frame,
+              (unsigned long long)frame_count,
         	        filename);
-                goto cleanup;
-            } else {
-                goto hash_complete;
-            }
-        } else if (frame_image) {
+            goto cleanup;
+        } else {
             CvMat* mat = NULL;
             for(i = next_hash_frame; i < HASH_PART_COUNT; ++i) {
-        	if(hash_frames[i].frame_number == current_frame) {
+        	if(hash_frames[i].pos == current_frame) {
         	    if(!mat) {
         		mat = cvEncodeImage(".bmp", frame_image, NULL);
         		if(!mat) {
@@ -203,7 +195,6 @@ int process_video(char *filename, int bits, int quick, int debug)
             }
         }
     }
-    
 hash_complete:
     hash = malloc(bits * bits * sizeof(int) * HASH_PART_COUNT);
     if(!hash) {
@@ -216,7 +207,6 @@ hash_complete:
         for(i = 0; i < HASH_PART_COUNT; ++i, dest += block_element_count)
             memcpy(dest, hash_frames[i].hash, block_size); 
     }
-    
     char* hex = bits_to_hexhash(hash, HASH_PART_COUNT * bits * bits);
     if(hex) {
       result = 0;
