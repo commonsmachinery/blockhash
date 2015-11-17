@@ -18,7 +18,7 @@ extern "C" {
  *
  * Returns: null-terminated hexadecimal string hash on succes, NULL on failure.
  */
-char* blockhash_bits_to_hex_str(int *bits, int nbits);
+char* blockhash_to_str(int *bits, int nbits);
 
 
 /** Calculate perceptual hash for an RGBA image using quick method.

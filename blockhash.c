@@ -69,8 +69,52 @@ static float medianf(float *data, int n)
     return result;
 }
 
+/** Compare medians across four horizontal bands
+ *
+ * Output a 1 if the block is brighter than the median.
+ * With images dominated by black or white, the median may
+ * end up being 0 or the max value, and thus having a lot
+ * of blocks of value equal to the median.  To avoid
+ * generating hashes of all zeros or ones, in that case output
+ * 0 if the median is in the lower value space, 1 otherwise
+ */
+static void translate_blocks_to_bits(int *blocks, int nblocks, int pixels_per_block)
+{
+    float half_block_value;
+    int bandsize, i, j, v;
+    float m;
 
-char* blockhash_bits_to_hex_str(int *bits, int nbits)
+    half_block_value = pixels_per_block * 256 * 3 / 2;
+    bandsize = nblocks / 4;
+
+    for (i = 0; i < 4; i++) {
+        m = median(&blocks[i * bandsize], bandsize);
+        for (j = i * bandsize; j < (i + 1) * bandsize; j++) {
+            v = blocks[j];
+            blocks[j] = v > m || (abs(v - m) < 1 && m > half_block_value);
+        }
+    }
+}
+
+static void translate_blocks_to_bitsf(float *blocks, int *result, int nblocks, int pixels_per_block)
+{
+    float half_block_value;
+    int bandsize, i, j;
+    float m, v;
+
+    half_block_value = pixels_per_block * 256 * 3 / 2;
+    bandsize = nblocks / 4;
+
+    for (i = 0; i < 4; i++) {
+        m = medianf(&blocks[i * bandsize], bandsize);
+        for (j = i * bandsize; j < (i + 1) * bandsize; j++) {
+            v = blocks[j];
+            result[j] = v > m || (abs(v - m) < 1 && m > half_block_value);
+        }
+    }
+}
+
+char* blockhash_to_str(int *bits, int nbits)
 {
     int    i, j, b;
     int    len;
@@ -141,22 +185,7 @@ int blockhash_quick(int bits, unsigned char *data, int width, int height, int **
         }
     }
 
-    for (i = 0; i < 4; i++) {
-       m[i] = median(&blocks[i*bits*bits/4], bits*bits/4);
-    }
-
-    for (i = 0; i < bits * bits; i++) {
-        if (  ((blocks[i] < m[0]) && (i < bits*bits/4))
-            ||((blocks[i] < m[1]) && (i >= bits*bits/4) && (i < bits*bits/2))
-            ||((blocks[i] < m[2]) && (i >= bits*bits/2) && (i < bits*bits/4+bits*bits/2))
-            ||((blocks[i] < m[3]) && (i >= bits*bits/2+bits*bits/4))
-            ) {
-          blocks[i] = 0;
-        } else {
-          blocks[i] = 1;
-        }
-    }
-
+    translate_blocks_to_bits(blocks, bits * bits, block_width * block_height);
     *hash = blocks;
     return 0;
 }
@@ -240,21 +269,7 @@ int blockhash(int bits, unsigned char *data, int width, int height, int **hash)
         }
     }
 
-    for (i = 0; i < 4; i++) 
-       m[i] = medianf(&blocks[i*bits*bits/4], bits*bits/4);
-
-    for (i = 0; i < bits * bits; i++) {
-        if (  ((blocks[i] < m[0]) && (i < bits*bits/4))
-            ||((blocks[i] < m[1]) && (i >= bits*bits/4) && (i < bits*bits/2))
-            ||((blocks[i] < m[2]) && (i >= bits*bits/2) && (i < bits*bits/4+bits*bits/2))
-            ||((blocks[i] < m[3]) && (i >= bits*bits/2+bits*bits/4))
-            ) {
-          result[i] = 0;
-        } else {
-          result[i] = 1;
-        }
-    }
-
+    translate_blocks_to_bitsf(blocks, result, bits * bits, block_width * block_height);
     free(blocks);
 
     *hash = result;

@@ -199,7 +199,7 @@ static int process_image_file(const hash_computation_task* task)
 	    }
 	    
 	    // Print blockhash string
-	    char* hex = blockhash_bits_to_hex_str(hash, task->bits * task->bits);
+	    char* hex = blockhash_to_str(hash, task->bits * task->bits);
 	    if(hex) {
 		printf("%s  %s\n", hex, task->file_name);
 		free(hex);
@@ -351,7 +351,7 @@ hash_computed:
 	debug_print_hash(hash, task->bits);
 
     // Print blockhash string
-    char* hex = blockhash_bits_to_hex_str(hash, HASH_PART_COUNT * task->bits * task->bits);
+    char* hex = blockhash_to_str(hash, HASH_PART_COUNT * task->bits * task->bits);
     if(hex) {
       result = 0;
       printf("%s  %s\n", hex, task->file_name);
