@@ -15,24 +15,17 @@ else
 CFLAGS:=-O3
 endif
 
-CFLAGS+=-Wall -Werror -fno-common
+CFLAGS+=-Wall -Werror -fno-common -fmax-errors=2 -DHAVE_MACHINE_ENDIAN_H
 
 CFLAGS+=$(shell MagickWand-config --cflags)
 LDFLAGS:=-L. $(shell MagickWand-config --ldflags)
 
 LIBS:= 	-lblockhash \
 	$(shell MagickWand-config --libs) \
-	-lopencv_core \
-	-lopencv_imgproc \
-	-lopencv_highgui \
-	-lopencv_ml \
-	-lopencv_video \
-	-lopencv_features2d \
-	-lopencv_calib3d \
-	-lopencv_objdetect \
-	-lopencv_contrib \
-	-lopencv_legacy \
-	-lopencv_stitching \
+	-lavformat \
+	-lavcodec \
+	-lavutil \
+	-lswscale \
 	-lm \
 
 ARFLAGS:=
@@ -53,7 +46,7 @@ rebuild: clean build
 install: blockhash
 	install -c -t /usr/local/bin blockhash
 	
-blockhash: main.o libblockhash.a
+blockhash: libblockhash.a main.o misc.o process_image.o process_video.o
 	$(LD) -o $@ $(LDFLAGS)  $^ $(LIBS)
 	
 libblockhash.a : blockhash.o
