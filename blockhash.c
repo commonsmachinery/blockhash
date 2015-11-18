@@ -151,12 +151,11 @@ char* blockhash_to_str(int *bits, int nbits)
 
 int blockhash_quick(int bits, unsigned char *data, int width, int height, int **hash)
 {
-    int    i, x, y, ix, iy;
+    int    x, y, ix, iy;
     int    ii, alpha, value;
     int    block_width;
     int    block_height;
     int   *blocks;
-    float  m[4];
 
     block_width = width / bits;
     block_height = height / bits;
@@ -200,11 +199,10 @@ int blockhash(int bits, unsigned char *data, int width, int height, int **hash)
     float   x_mod, y_mod;
     float   weight_top, weight_bottom, weight_left, weight_right;
     int     block_top, block_bottom, block_left, block_right;
-    int     i, x, y, ii, alpha;
+    int     x, y, ii, alpha;
     float   value;
     float  *blocks;
     int    *result;
-    float   m[4];
 
     if (width % bits == 0 && height % bits == 0) {
         return blockhash_quick(bits, data, width, height, hash);

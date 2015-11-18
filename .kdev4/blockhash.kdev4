@@ -11,7 +11,7 @@ Name=TestVideoHash1
 Type=Native Application
 
 [Launch][Launch Configuration 0][Data]
-Arguments=-V video1/20151109_113608.mp4
+Arguments=--debug -V testdata/video3.mp4
 Dependencies=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x00)
 Dependency Action=Nothing
 EnvironmentGroup=default

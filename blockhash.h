@@ -6,8 +6,8 @@
  * Distributed under an MIT license, please see LICENSE in the top dir.
  */
 
-#ifndef __BLOCKHASH_BLOCKHASH_H__
-#define __BLOCKHASH_BLOCKHASH_H__
+#ifndef __LIBBLOCKHASH_BLOCKHASH_H__
+#define __LIBBLOCKHASH_BLOCKHASH_H__
 
 #ifdef __cplusplus
 extern "C" {
