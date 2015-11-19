@@ -389,6 +389,7 @@ restart:
                             if(!bmp) {
                                 result = -1;
                                 fprintf(stderr, "Error: Couldn't allocate frame image buffer for the video file '%s'.\n", task->src_file_name);
+                                av_free_packet(&state.packet);
                                 goto cleanup;                                                                
                             }
 
@@ -446,9 +447,15 @@ restart:
                             }
                         }
                         
-                        hash_frames[i].hash = process_video_frame(task, current_frame, bmp, bmp_size);
-                        if(!hash_frames[i].hash) 
-                            goto cleanup;
+                        {
+                            int* hash = process_video_frame(task, current_frame, bmp, bmp_size);
+                            if(!hash) {
+                                free(bmp);
+                                av_free_packet(&state.packet);
+                                goto cleanup;
+                            }
+                            hash_frames[i].hash = hash;
+                        }
                         
                         ++next_hash_frame;
                         // Do not break here, becasue in certain cases 
@@ -456,6 +463,7 @@ restart:
                     }
                 }
                 
+                // Free frame image
                 if(bmp)
                     free(bmp);
                 
