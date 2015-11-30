@@ -1,0 +1,17 @@
+0000000000000000  ../testdata/Babylonian.png
+04836eb4de76f40e  ../testdata/00094701.jpg
+2b1afd3c10d43c2f  ../testdata/puffy_white.png
+3393cdcb3c2c92c3  ../testdata/01109801.jpg
+5aea50bba296fd01  ../testdata/clipper_ship.jpg
+6ab39d36258c233b  ../testdata/06855701.jpg
+7176f15a05d307a9  ../testdata/00631801.jpg
+723df0518aec0cf3  ../testdata/00106901.jpg
+73643224338ec7f3  ../testdata/00136101.jpg
+832b862f17c1fb0e  ../testdata/emptyBasket.png
+873ce39e13ec1e41  ../testdata/00011601.jpg
+c36d564ec5b12647  ../testdata/24442301.jpg
+cc27a77c9a81e516  ../testdata/00002701.jpg
+d02cd6390e723fd1  ../testdata/00133601.jpg
+d376ad5e51d101a9  ../testdata/00631701.jpg
+d93ba4b90ed15e22  ../testdata/32499201.jpg
+f34c33cccc333833  ../testdata/stoplights.jpg

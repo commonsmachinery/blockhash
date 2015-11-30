@@ -1,42 +1,60 @@
-blockhash
+phashtool
 =========
 
-This is a perceptual image hash calculation tool based on algorithm descibed in
-Block Mean Value Based Image Perceptual Hashing by Bian Yang, Fan Gu and Xiamu Niu.
+This is a perceptual image and video hash calculation tool based on the phash algorithm.
+
 
 Build and install
 -----------------
 
-Blockhash requires libmagickwand. On Debian/Ubuntu it can be installed using
-the following command:
+phashtool requires:
+- libjpeg
+- libpng
+- libtiff
+- libopenexr
+- zlib
+- ffmpeg libraries (libavformat, libavcodec, libavutil, libswscale)
 
-    sudo apt-get install libmagickwand-dev
+On Debian/Ubuntu it can be installed using the following command:
+
+    sudo apt-get install libjpeg-dev libpng-dev libtiff-dev libopenexr-dev libz-dev libavformat-dev libavutil-dev libavcodec-dev libswscale-dev
 
 On Fedora and friends:
 
-    sudo dnf install ImageMagick-devel
+First, you need to enable RPMForge repository (read more, for example, [here](http://www.tecmint.com/enable-rpmforge-repository/)). 
+Then you'll be able to install as follows:
 
-To build blockhash cd to the source directory and type:
+    sudo dnf install libjpeg-devel libpng-devel libtiff-devel libopenexr-devel zlib-devel ffmpeg-devel 
+    
+or possibly
 
-    ./waf configure
-    ./waf
+    sudo yum install libjpeg-devel libpng-devel libtiff-devel OpenEXR-devel zlib-devel ffmpeg-devel 
 
-The program binary will land in `./build`. To install it to `/usr/local/bin/` type:
 
-    ./waf install
+To build phashtool cd to the source directory and type:
+    
+    ./configure
+    make
+
+The program binary will land in `./src`. To install it to `/usr/local/bin/` type:
+
+    make install
 
 Usage
 -----
 
-Run `blockhash [list of images]` for calculating hashes.
+Run `phashtool [list of images]` for calculating hashes for image files.
 
-Run `blockhash --help` for the list of options.
+Run `phashtool --video [list of videos]` for calculating hashes for video files.
+
+Run `phashtool --help` for the list of options.
 
 License
 -------
 
-Copyright 2014 Commons Machinery http://commonsmachinery.se/
+Copyright (c) 2015 Commons Machinery http://commonsmachinery.se/
 
-Distributed under an MIT license, please see LICENSE in the top dir.
+Distributed under GPLv3 license, please see bundled file COPYING for details.
 
 Contact: dev@commonsmachinery.se
+

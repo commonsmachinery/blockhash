@@ -1,0 +1,48 @@
+[Buildset]
+BuildItems=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x01\x00\x00\x00\x0b\x00\x00\x00\x00\x01\x00\x00\x00\x12\x00b\x00l\x00o\x00c\x00k\x00h\x00a\x00s\x00h)
+
+[Launch]
+Launch Configurations=Launch Configuration 0,Launch Configuration 1
+
+[Launch][Launch Configuration 0]
+Configured Launch Modes=execute
+Configured Launchers=nativeAppLauncher
+Name=TestVideoHash1
+Type=Native Application
+
+[Launch][Launch Configuration 0][Data]
+Arguments=--debug -V testdata/video3.mp4
+Dependencies=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x00)
+Dependency Action=Nothing
+EnvironmentGroup=default
+Executable=file:///home/ivan/prowork/blockhash/src/phashtool
+External Terminal=konsole --noclose --workdir %workdir -e %exe
+Project Target=
+Use External Terminal=false
+Working Directory=file:///home/ivan/prowork/blockhash
+isExecutable=true
+
+[Launch][Launch Configuration 1]
+Configured Launch Modes=execute
+Configured Launchers=nativeAppLauncher
+Name=TestPNG
+Type=Native Application
+
+[Launch][Launch Configuration 1][Data]
+Arguments=testdata/jjjj.bmp
+Dependencies=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x00)
+Dependency Action=Nothing
+EnvironmentGroup=default
+Executable=file:///home/ivan/prowork/blockhash/src/phashtool
+External Terminal=konsole --noclose --workdir %workdir -e %exe
+Project Target=
+Use External Terminal=false
+Working Directory=file:///home/ivan/prowork/blockhash
+isExecutable=true
+
+[MakeBuilder]
+Additional Options=DEBUG=1 -f Makefile.kdev4
+Default Target=all
+
+[Project]
+VersionControlSupport=kdevgit
