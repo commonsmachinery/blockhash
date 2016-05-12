@@ -1,0 +1,7 @@
+#!/bin/sh
+
+aclocal -I./m4
+autoconf
+automake
+./configure --prefix=/usr/local
+

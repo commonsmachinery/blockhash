@@ -5,10 +5,21 @@ set -e
 d=`dirname "$0"`
 
 cd "$d/testdata"
+
+hash_tool=../src/phashtool
+
 echo
-../build/blockhash -b 16 *.jpg *.png | sort | diff -su exact-hashes.txt -
+echo Testing image hashes...
 echo
-../build/blockhash -q -b 16 *.jpg *.png | sort | diff -su quick-hashes.txt -
+${hash_tool} *.jpg *.png | sort | diff -su image-hashes.txt -
+
 echo
-echo OK
+echo Testing video hashes...
 echo
+${hash_tool} -V *.mp4 | sort | diff -su video-hashes.txt -
+
+
+echo
+echo Test finished.
+echo
+

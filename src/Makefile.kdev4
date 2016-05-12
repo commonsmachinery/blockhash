@@ -1,0 +1,78 @@
+#
+# Perceptual image hash calculation library based on algorithm descibed in
+# Block Mean Value Based Image Perceptual Hashing by Bian Yang, Fan Gu and Xiamu Niu
+#
+# Copyright 2014-2015 Commons Machinery http://commonsmachinery.se/
+# Distributed under an MIT license, please see LICENSE in the top dir.
+#
+
+CC=gcc
+CXX=g++
+LD=g++
+
+ifeq ("$(DEBUG)","1")
+CFLAGS:=-g3 -ggdb
+CXXFLAGS:=-g3 -ggdb
+else
+CFLAGS:=-O3
+CXXFLAGS:=-O3
+endif
+
+DEFS:=  -DHAVE_MACHINE_ENDIAN_H \
+	-Dcimg_verbosity=0 \
+	-Dcimg_display=0 \
+	-Dcimg_use_png \
+	-Dcimg_use_jpeg \
+	-Dcimg_use_tiff \
+	-Dcimg_use_openexr \
+	-Dcimg_use_zlib
+
+INCLUDES:=-I/usr/include/OpenEXR
+	
+CFLAGS+= -pthread -std=gnu99 \
+	-Wall -Werror -fno-common -fmax-errors=2
+
+CXXFLAGS+= -pthread -std=gnu++11 \
+	-Wall -Werror -fno-common -fmax-errors=2
+
+LDFLAGS:= -pthread
+
+LIBS:=  -lavformat \
+	-lavcodec \
+	-lavutil \
+	-lswscale \
+	-lpng \
+	-ljpeg \
+	-ltiff \
+	-L/usr/lib/OpenEXR \
+	-lIlmImf -lImath -lIex -lHalf \
+	-lz \
+	-lm
+
+ARFLAGS:=
+
+TARGET:=phashtool
+
+.PHONY: all build clean rebuild install
+
+all: build
+
+build: $(TARGET)
+
+clean:
+	-rm -f *.o
+	-rm -f $(TARGET)
+
+rebuild: clean build
+	
+install: $(TARGET)
+	install -c -t /usr/local/bin $<
+	
+phashtool: main.o misc.o process_image.o process_video.o pHash-img.o pHash-img-c.o
+	$(LD) -o $@ $(LDFLAGS) $^ $(LIBS)
+	
+%.o: %.c
+	$(CC) -o $@ $(CFLAGS) $(INCLUDES) $(DEFS) -c $<
+
+%.o: %.cpp
+	$(CXX) -o $@ $(CXXFLAGS) $(INCLUDES) $(DEFS) -c $<
