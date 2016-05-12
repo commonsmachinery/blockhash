@@ -1,42 +1,56 @@
 blockhash
 =========
 
-This is a perceptual image hash calculation tool based on algorithm descibed in
+This is a perceptual image and video hash calculation tool based on algorithm descibed in
 Block Mean Value Based Image Perceptual Hashing by Bian Yang, Fan Gu and Xiamu Niu.
 
 Build and install
 -----------------
 
-Blockhash requires libmagickwand. On Debian/Ubuntu it can be installed using
-the following command:
+Blockhash requires:
+- libmagickwand
+- ffmpeg libraries (libavformat, libavcodec, libavutil, libswscale)
 
-    sudo apt-get install libmagickwand-dev
+On Debian/Ubuntu it can be installed using the following command:
+
+    sudo apt-get install libmagickcore-dev libmagickwand-dev libavformat-dev libavutil-dev libavcodec-dev libswscale-dev
 
 On Fedora and friends:
 
-    sudo dnf install ImageMagick-devel
+First, you need to enable RPMForge repository (read more, for example, [here](http://www.tecmint.com/enable-rpmforge-repository/)). 
+Then you'll be able to install as follows:
+
+    sudo dnf install ImageMagick-devel ffmpeg-devel
+    
+or possibly
+
+    sudo yum install ImageMagick-devel ffmpeg-devel
+
 
 To build blockhash cd to the source directory and type:
 
-    ./waf configure
-    ./waf
+    ./configure
+    make rebuild
 
-The program binary will land in `./build`. To install it to `/usr/local/bin/` type:
+The program binary will land in `./src`. To install it to `/usr/local/bin/` type:
 
-    ./waf install
+    make install
 
 Usage
 -----
 
-Run `blockhash [list of images]` for calculating hashes.
+Run `blockhash [list of images]` for calculating hashes for image files.
+
+Run `blockhash --video [list of videos]` for calculating hashes for video files.
 
 Run `blockhash --help` for the list of options.
 
 License
 -------
 
-Copyright 2014 Commons Machinery http://commonsmachinery.se/
+Copyright (c) 2014-2015 Commons Machinery http://commonsmachinery.se/
 
 Distributed under an MIT license, please see LICENSE in the top dir.
 
 Contact: dev@commonsmachinery.se
+
