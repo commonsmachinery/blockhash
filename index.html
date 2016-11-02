@@ -39,6 +39,14 @@
 <p>Blockhash is a set of libraries (Python and JavaScript, currently) implementing a variation of the perceptual image hashing algorithm described by Bian Yang, Fan Gu and Xiamu Niu in their paper <i>Block Mean Value Based Image Perceptual Hashing</i></p>
 
 <p>The 256 bit hashes that Blockhash generate are designed to be near unique for images, even after an image has been rescaled. The Hamming distance between two hashes (the number of bits that differ) indicate how far apart two images are, with single-digit values generally giving a good indication that the images are identical, even if they are of different size.</p>
+<h3>Experimental video support</h3>
+<p>
+Through 2016, we experimented with using the Blockhash algorithm to
+fingerprint videos. You can read more about the <a
+href="http://videorooter.eu/">Videorooter</a> project, and view our
+<a href="https://github.com/jonasob/blockhash/tree/master">experimental
+video support</a>.
+</p>
           <h3>Why Blockhash?</h3>
 <p>While working on developing the <a href="http://elog.io">Elog.io</a> tools, we needed a way to perceptually compare images. Libraries like <a href="http://phash.org/">pHash</a> and <a href="http://www.imgseek.net">imgSeek</a> do the job, but we needed something that had an easier algorithm to implement in JavaScript, and the block mean value-based image hash algorithm fits the bill perfectly. We have subsequently made a few tweaks to the algorithm to optimize it for speed and make it less susceptible to implementation variations.</p>
 
@@ -96,7 +104,7 @@ detail. You can follow the progress on <a href="https://github.com/commonsmachin
 
 <h3>Questions?</h3>
 
-<p>File an issue in the respective Github repository, find our developers goodoldshep &amp; artfwo on IRC in channel #commonsmachinery on FreeNode, or mail dev@commonsmachinery.se</p>
+<p>File an issue in the respective Github repository or mail dev@commonsmachinery.se</p>
 
         </article>
       </div>
