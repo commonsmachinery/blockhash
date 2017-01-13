@@ -83,8 +83,8 @@ float medianf(float *data, int n)
 void translate_blocks_to_bits(int *blocks, int nblocks, int pixels_per_block)
 {
     float half_block_value;
-    int bandsize, i, j, v;
-    float m;
+    int bandsize, i, j;
+    int m, v;
 
     half_block_value = pixels_per_block * 256 * 3 / 2;
     bandsize = nblocks / 4;
@@ -111,7 +111,7 @@ void translate_blocks_to_bitsf(float *blocks, int *result, int nblocks, int pixe
         m = medianf(&blocks[i * bandsize], bandsize);
         for (j = i * bandsize; j < (i + 1) * bandsize; j++) {
             v = blocks[j];
-            result[j] = v > m || (abs(v - m) < 1 && m > half_block_value);
+            result[j] = v > m || (fabsf(v - m) < 1 && m > half_block_value);
         }
     }
 }
@@ -165,12 +165,11 @@ char* bits_to_hexhash(int *bits, int nbits)
 */
 void blockhash_quick(int bits, unsigned char *data, int width, int height, int **hash)
 {
-    int    i, x, y, ix, iy;
+    int    x, y, ix, iy;
     int    ii, alpha, value;
     int    block_width;
     int    block_height;
     int   *blocks;
-    float  m[4];
 
     block_width = width / bits;
     block_height = height / bits;
@@ -224,11 +223,10 @@ void blockhash(int bits, unsigned char *data, int width, int height, int **hash)
     float   x_mod, y_mod;
     float   weight_top, weight_bottom, weight_left, weight_right;
     int     block_top, block_bottom, block_left, block_right;
-    int     i, x, y, ii, alpha;
+    int     x, y, ii, alpha;
     float   value;
     float  *blocks;
     int    *result;
-    float   m[4];
 
     if (width % bits == 0 && height % bits == 0) {
         return blockhash_quick(bits, data, width, height, hash);
@@ -292,9 +290,9 @@ void blockhash(int bits, unsigned char *data, int width, int height, int **hash)
     free(blocks);
 }
 
-int process_image(char * fn, int bits, int quick, int debug)
+void process_image(char * fn, int bits, int quick, int debug)
 {
-    int i, j;
+    int i;
     size_t width, height;
     unsigned char *image_data;
     int *hash;
@@ -361,13 +359,12 @@ void help() {
            "--debug               Print hashes as 2D maps (for debugging)\n");
 }
 
-void main (int argc, char **argv) {
+int main (int argc, char **argv) {
     MagickWandGenesis();
 
     int quick = 0;
     int debug = 0;
     int bits = 16;
-    int x;
 
     int option_index = 0;
     int c;
@@ -421,6 +418,6 @@ void main (int argc, char **argv) {
     }
 
     MagickWandTerminus();
-    
+
     exit(0);
 }
