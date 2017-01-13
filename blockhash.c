@@ -11,7 +11,11 @@
 #include <string.h>
 #include <math.h>
 
+#ifdef MAGICKWAND_V7
+#include <MagickWand/MagickWand.h>
+#else
 #include <wand/MagickWand.h>
+#endif
 
 // comparing functions for qsort
 

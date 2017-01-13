@@ -13,6 +13,9 @@ def configure(conf):
     conf.check_cc(lib='m')
     conf.check_cfg(package='MagickWand', args=['--cflags', '--libs'])
 
+    if conf.check_cfg(modversion='MagickWand') >= '7':
+        conf.define('MAGICKWAND_V7', True)
+
 def build(bld):
     bld(
         features='c cprogram',
