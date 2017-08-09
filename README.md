@@ -18,12 +18,14 @@ On Fedora and friends:
 
 To build blockhash cd to the source directory and type:
 
-    ./waf configure
-    ./waf
+    mkdir build
+		cd build
+		cmake ..
+		cmake --build .
 
-The program binary will land in `./build`. To install it to `/usr/local/bin/` type:
+The program binary will land in the build directory. To install, copy it to `/usr/local/bin`
 
-    ./waf install
+    cp blockhash /usr/local/bin
 
 Usage
 -----
