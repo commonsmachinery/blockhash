@@ -43,7 +43,7 @@ float median(int *data, int n)
     qsort(sorted, n, sizeof(int), cmpint);
 
     if (n % 2 == 0) {
-        result = (float) (sorted[n / 2] + sorted[n / 2 + 1]) / 2;
+        result = (float) (sorted[n / 2 - 1] + sorted[n / 2]) / 2;
     } else {
         result = (float) sorted[n / 2];
     }
@@ -62,7 +62,7 @@ float medianf(float *data, int n)
     qsort(sorted, n, sizeof(float), cmpfloat);
 
     if (n % 2 == 0) {
-        result = (sorted[n / 2] + sorted[n / 2 + 1]) / 2;
+        result = (sorted[n / 2 - 1] + sorted[n / 2]) / 2;
     } else {
         result = sorted[n / 2];
     }
