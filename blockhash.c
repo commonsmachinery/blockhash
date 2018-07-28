@@ -298,12 +298,16 @@ void process_image(char * fn, int bits, int quick, int debug)
     int *hash;
     MagickBooleanType status;
     MagickWand *magick_wand;
+    char *error_description;
+    ExceptionType error_severity;
 
     magick_wand = NewMagickWand();
     status = MagickReadImage(magick_wand, fn);
 
     if (status == MagickFalse) {
-        printf("Error opening image file %s\n", fn);
+        error_description = MagickGetException(magick_wand, &error_severity);
+        fprintf(stderr, "Error opening image file %s: %s\n", fn, error_description);
+        error_description=(char *) MagickRelinquishMemory(error_description);
         exit(-1);
     }
 
@@ -318,7 +322,7 @@ void process_image(char * fn, int bits, int quick, int debug)
     status = MagickExportImagePixels(magick_wand, 0, 0, width, height, "RGBA", CharPixel, image_data);
 
     if (status == MagickFalse) {
-        printf("Error converting image data to RGBA\n");
+        fprintf(stderr, "Error converting image data to RGBA\n");
         exit(-1);
     }
 
@@ -394,11 +398,11 @@ int main (int argc, char **argv) {
             break;
         case 'b':
             if (sscanf(optarg, "%d", &bits) != 1) {;
-                printf("Error: couldn't parse bits argument\n");
+                fprintf(stderr, "Error: couldn't parse bits argument\n");
                 exit(-1);
             }
             if (bits % 4 != 0) {
-                printf("Error: bits argument should be a multiple of 4\n");
+                fprintf(stderr, "Error: bits argument should be a multiple of 4\n");
                 exit(-1);
             }
             break;
