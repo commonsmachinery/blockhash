@@ -22,5 +22,5 @@ def build(bld):
         source='blockhash.c',
         target='blockhash',
         use=['MAGICKWAND', 'M'],
-        cflags=['-O3'],
+        cflags=['-O3', '-DVERSION="' + VERSION + '"'],
     )

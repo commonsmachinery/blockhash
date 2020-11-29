@@ -358,6 +358,7 @@ void help() {
            "\n"
            "Optional arguments:\n"
            "-h, --help            Show this help message and exit\n"
+           "-v, --version         Show the version and exit\n"
            "-q, --quick           Use quick hashing method.\n"
            "-b, --bits BITS       Create hash of size N^2 bits. Default: 16\n"
            "--debug               Print hashes as 2D maps (for debugging)\n");
@@ -375,6 +376,7 @@ int main (int argc, char **argv) {
 
     struct option long_options[] = {
         {"help",    no_argument,        0, 'h'},
+        {"version", no_argument,        0, 'v'},
         {"quick",   no_argument,        0, 'q'},
         {"bits",    required_argument,  0, 'b'},
         {"debug",   no_argument,        0, 'd'},
@@ -386,11 +388,15 @@ int main (int argc, char **argv) {
         exit(0);
     }
 
-    while ((c = getopt_long(argc, argv, "hqb:d",
+    while ((c = getopt_long(argc, argv, "hvqb:d",
                  long_options, &option_index)) != -1) {
         switch (c) {
         case 'h':
             help();
+            exit(0);
+            break;
+        case 'v':
+            printf("%s\n", VERSION);
             exit(0);
             break;
         case 'q':
