@@ -1,5 +1,5 @@
 APPNAME = 'blockhash'
-VERSION = '0.3'
+VERSION = '0.3.2'
 
 top = '.'
 out = 'build'
