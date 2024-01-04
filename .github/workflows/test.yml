@@ -20,4 +20,4 @@ jobs:
       run: ./waf configure && ./waf
 
     - name: Test
-      run: chmod +x test.sh && ./test.sh
+      run: ./test.sh
