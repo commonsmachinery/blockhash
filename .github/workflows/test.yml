@@ -1,0 +1,23 @@
+name: Test
+
+on:
+  push:
+    branches: [ '*' ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install required packages
+      run: sudo apt-get install libmagickwand-dev
+
+    - name: Build
+      run: ./waf configure && ./waf
+
+    - name: Test
+      run: ./test.sh
