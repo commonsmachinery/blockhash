@@ -1,4 +1,4 @@
-![Workflow](https://github.com/commonsmachinery/blockhash/actions/workflows/test.yml/badge.svg)
+![Tests](https://github.com/commonsmachinery/blockhash/actions/workflows/test.yml/badge.svg)
 
 blockhash
 =========
